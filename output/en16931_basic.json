@@ -1,0 +1,47 @@
+{
+  "profile": {
+    "specification_identifier": null,
+    "invoice_type_code": "RECHNUNG"
+  },
+  "header": {
+    "invoice_number": "33385298",
+    "issue_date": "2021-10-06",
+    "currency": "EUR",
+    "note_subject_code": null,
+    "payment_terms": "14 Tage 3 %, 30 Tage netto Bis zum 20.10.2021 erhalten Sie 3,000 % Sk Bis zum 05.11.2021 ohne Abzug Skontof\u00e4higer Betrag: 698,79"
+  },
+  "seller": {
+    "name": "Storopack Deutschland GmbH + Co.KG",
+    "vat_id": "DE172155500"
+  },
+  "buyer": {
+    "name": "PREBENA Steen + Klentze GmbH"
+  },
+  "lines": [
+    {
+      "BT-126": "0010",
+      "BT-129": "2.151,00",
+      "BT-130": "St\u00fcck",
+      "BT-131": "587,22",
+      "BT-138": null,
+      "BT-144": null,
+      "BT-145": null,
+      "BT-146": "273,00",
+      "BT-147": null,
+      "BT-148": null,
+      "BT-149": null,
+      "BT-151": "S",
+      "BT-152": "19,000 %",
+      "BT-153": "Wellpapp-Zuschnitt 2.30BC 400 x 300 mm unbedruckt",
+      "BT-154": "2.466\nPalette",
+      "BT-157": "180440"
+    }
+  ],
+  "totals": {
+    "sum_line_net": "587.22",
+    "total_without_vat": "587,22",
+    "vat_total": "111.57",
+    "total_with_vat": "698,79",
+    "amount_due": null
+  }
+}

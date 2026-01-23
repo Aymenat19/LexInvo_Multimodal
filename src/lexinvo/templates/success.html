@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LexInvo POC - Results</title>
+    <style>
+      :root {
+        --bg: #f5efe6;
+        --panel: #ffffff;
+        --ink: #1f1d1a;
+        --muted: #6a6358;
+        --accent: #1f3a2e;
+        --accent-2: #a04f2f;
+        --border: #dbcdb9;
+      }
+      body {
+        font-family: "Palatino Linotype", Palatino, "Book Antiqua", serif;
+        margin: 0;
+        padding: 40px;
+        background: linear-gradient(135deg, #f5efe6, #efe5d6);
+        color: var(--ink);
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .panel {
+        background: var(--panel);
+        padding: 32px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        margin-bottom: 28px;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+      }
+      h2 {
+        margin: 24px 0 12px;
+        font-size: 20px;
+      }
+      p {
+        color: var(--muted);
+      }
+      .step {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent-2);
+        margin-bottom: 8px;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      .table th,
+      .table td {
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        padding: 10px 8px;
+        vertical-align: top;
+      }
+      .table th {
+        color: var(--muted);
+        font-weight: normal;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 12px;
+      }
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: #f2e8db;
+        color: var(--accent-2);
+        font-size: 12px;
+      }
+      .btn {
+        display: inline-block;
+        background: var(--accent);
+        color: #fff;
+        padding: 12px 18px;
+        border: 0;
+        text-decoration: none;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 900px) {
+        .two-col { grid-template-columns: 1fr; }
+      }
+      .muted { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="panel">
+        <h2>All BT fields (full audit)</h2>
+        <p class="muted">Every BT from the registry, showing raw vs final values.</p>
+        <div style="overflow-x: auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>BT</th>
+                <th>Field</th>
+                <th>Line</th>
+                <th>Old value</th>
+                <th>Final value</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in all_rows %}
+                <tr>
+                  <td><span class="pill">{{ row.bt }}</span></td>
+                  <td>{{ row.name }}</td>
+                  <td>{{ row.line_id }}</td>
+                  <td>{{ row.old }}</td>
+                  <td>{{ row.new }}</td>
+                  <td>{{ row.status }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top: 18px;">
+          <a class="btn" href="/download/en16931_basic">Extract compliant invoice</a>
+        </div>
+      </div>
+
+      <div class="panel two-col">
+        <div>
+          <h2>Next run</h2>
+          <p class="muted">Upload another file and re-run the process.</p>
+          <a class="btn" href="/">Upload new file</a>
+        </div>
+        <div>
+          <h2>Outputs folder</h2>
+          <p class="muted">Files are written to the local output directory.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

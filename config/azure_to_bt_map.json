@@ -1,0 +1,18 @@
+{
+  "BT-1": [{"path": "documents[0].fields.InvoiceId.valueString"}],
+  "BT-2": [{"path": "documents[0].fields.InvoiceDate.valueDate"}],
+  "BT-27": [{"path": "documents[0].fields.VendorName.valueString"}],
+  "BT-44": [{"path": "documents[0].fields.CustomerName.valueString"}],
+  "LINES": {
+    "path": "documents[0].fields.Items.valueArray",
+    "map": {
+      "BT-126": [{"path": "valueObject.ItemId.valueString"}],
+      "BT-153": [{"path": "valueObject.Description.valueString"}],
+      "BT-129": [{"path": "valueObject.Quantity.valueNumber"}],
+      "BT-130": [{"path": "valueObject.Unit.valueString"}],
+      "BT-146": [{"path": "valueObject.UnitPrice.valueNumber"}],
+      "BT-131": [{"path": "valueObject.Amount.valueNumber"}],
+      "BT-152": [{"path": "valueObject.TaxRate.valueNumber"}]
+    }
+  }
+}

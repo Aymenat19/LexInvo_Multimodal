@@ -1,0 +1,1 @@
+"""POC validation utilities (stub)."""

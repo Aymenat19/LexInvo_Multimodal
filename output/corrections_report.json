@@ -1,0 +1,144 @@
+{
+  "entries": [
+    {
+      "bt": "BT-2",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "2021-06-10",
+      "new_value": "2021-10-06",
+      "status": "corrected",
+      "derivation": "Normalized date to ISO",
+      "rule_id": "R-HDR-DATE-001"
+    },
+    {
+      "bt": "BT-31",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "USt-ID-Nr.DE172155500",
+      "new_value": "DE172155500",
+      "status": "corrected",
+      "derivation": "Normalized VAT ID",
+      "rule_id": "R-HDR-VAT-001"
+    },
+    {
+      "bt": "BT-30",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "HRB 361292\nHRA 361076",
+      "new_value": "HRB 361292",
+      "status": "corrected",
+      "derivation": "Normalized registration identifier to single value",
+      "rule_id": "R-HDR-REG-001"
+    },
+    {
+      "bt": "BT-32",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Nr.89079/43487",
+      "new_value": "89079/43487",
+      "status": "corrected",
+      "derivation": "Normalized tax registration identifier",
+      "rule_id": "R-HDR-TAXREG-001"
+    },
+    {
+      "bt": "BT-55",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "DE",
+      "status": "derived",
+      "derivation": "Derived country code from buyer post code",
+      "rule_id": "R-HDR-COUNTRY-BUYER-POST-001"
+    },
+    {
+      "bt": "BT-54",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "22",
+      "status": "derived",
+      "derivation": "Derived country subdivision from buyer post code prefix",
+      "rule_id": "R-HDR-SUBDIV-BUYER-POST-001"
+    },
+    {
+      "bt": "BT-40",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "DE",
+      "status": "derived",
+      "derivation": "Derived country code from seller post code",
+      "rule_id": "R-HDR-COUNTRY-SELLER-POST-001"
+    },
+    {
+      "bt": "BT-39",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "22",
+      "status": "derived",
+      "derivation": "Derived country subdivision from seller post code prefix",
+      "rule_id": "R-HDR-SUBDIV-SELLER-POST-001"
+    },
+    {
+      "bt": "BT-151",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": null,
+      "new_value": "S",
+      "status": "derived",
+      "derivation": "Derived VAT category from rate",
+      "rule_id": "R-LINE-VATCAT-001"
+    },
+    {
+      "bt": "BT-106",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "587.22",
+      "status": "derived",
+      "derivation": "Sum of line net amounts",
+      "rule_id": "R-TOT-SUMS-001"
+    },
+    {
+      "bt": "BT-5",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "EUR\nEUR",
+      "new_value": "EUR",
+      "status": "corrected",
+      "derivation": "Removed duplicate currency token",
+      "rule_id": "R-HDR-CURRENCY-DEDUP-001"
+    },
+    {
+      "bt": "BT-110",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "111.57",
+      "status": "derived",
+      "derivation": "BT-112 - BT-109",
+      "rule_id": "R-TOT-GRAND-003"
+    },
+    {
+      "bt": "BT-40",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "DE",
+      "new_value": "US",
+      "status": "corrected",
+      "derivation": "Derived from seller VAT prefix",
+      "rule_id": "R-HDR-COUNTRY-SELLER-001"
+    },
+    {
+      "bt": "BT-9",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "20.10.2021\n05.11.2021",
+      "new_value": "2021-11-05",
+      "status": "corrected",
+      "derivation": "Selected latest payment due date",
+      "rule_id": "R-HDR-DUEDATE-002"
+    }
+  ]
+}

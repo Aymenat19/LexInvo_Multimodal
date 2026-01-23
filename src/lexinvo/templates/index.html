@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LexInvo POC</title>
+    <style>
+      :root {
+        --bg: #f5efe6;
+        --panel: #ffffff;
+        --ink: #1f1d1a;
+        --muted: #6a6358;
+        --accent: #1f3a2e;
+        --accent-2: #a04f2f;
+        --border: #dbcdb9;
+      }
+      body {
+        font-family: "Palatino Linotype", Palatino, "Book Antiqua", serif;
+        margin: 0;
+        padding: 48px;
+        background: linear-gradient(135deg, #f5efe6, #efe5d6);
+        color: var(--ink);
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .panel {
+        background: var(--panel);
+        padding: 36px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+      }
+      p {
+        margin: 6px 0 18px;
+        color: var(--muted);
+      }
+      .step {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent-2);
+        margin-bottom: 8px;
+      }
+      .upload {
+        display: grid;
+        gap: 16px;
+      }
+      input[type=file] {
+        border: 1px dashed var(--border);
+        padding: 14px;
+        background: #faf7f2;
+      }
+      .btn {
+        display: inline-block;
+        background: var(--accent);
+        color: #fff;
+        padding: 12px 18px;
+        border: 0;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .hint {
+        font-size: 13px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="panel">
+        <div class="step">Step 1</div>
+        <h1>Upload Azure JSON</h1>
+        <p>Select your invoice extraction file and run the process.</p>
+        <form class="upload" action="/run" method="post" enctype="multipart/form-data">
+          <input type="file" name="azure_json" accept="application/json" required />
+          <button class="btn" type="submit">Run Process</button>
+          <div class="hint">Your file stays local. Outputs are saved in the output folder.</div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
