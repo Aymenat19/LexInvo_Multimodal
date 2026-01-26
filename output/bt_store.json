@@ -1206,14 +1206,16 @@
     },
     "BT-109": {
       "bt": "BT-109",
-      "value": "1878.22",
+      "value": "1947.75",
       "raw_value": "(1.947,75",
-      "status": "wrong_math",
+      "status": "corrected",
       "source": "rule",
       "confidence": 0.756,
-      "derivation": "BT-106 - BT-107 + BT-108",
-      "evidence": null,
-      "rule_id": "R-TOT-CHECK-001"
+      "derivation": "Normalized amount format",
+      "evidence": {
+        "path": "analyzeResult.documents[0].fields.BT-109_Invoice-total-amount-without-VAT"
+      },
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
     },
     "BT-110": {
       "bt": "BT-110",
@@ -11469,7 +11471,7 @@
       "rule_id": "R-TOT-AMOUNT-NORM-001"
     },
     {
-      "bt": "BT-109",
+      "bt": "BT-116",
       "scope": "totals",
       "line_id": null,
       "old_value": "(1.947,75",
@@ -11489,7 +11491,7 @@
       "rule_id": "R-TOT-AMOUNT-NORM-001"
     },
     {
-      "bt": "BT-116",
+      "bt": "BT-109",
       "scope": "totals",
       "line_id": null,
       "old_value": "(1.947,75",
@@ -11529,7 +11531,7 @@
       "rule_id": "R-LINE-AMOUNT-NORM-001"
     },
     {
-      "bt": "BT-148",
+      "bt": "BT-131",
       "scope": "line",
       "line_id": 1,
       "old_value": "1.947,75",
@@ -11539,7 +11541,7 @@
       "rule_id": "R-LINE-AMOUNT-NORM-001"
     },
     {
-      "bt": "BT-131",
+      "bt": "BT-148",
       "scope": "line",
       "line_id": 1,
       "old_value": "1.947,75",
@@ -11717,16 +11719,6 @@
       "status": "derived",
       "derivation": "Instant payment: BT-112 - BT-107",
       "rule_id": "R-HDR-PAID-002"
-    },
-    {
-      "bt": "BT-109",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "1947.75",
-      "new_value": "1878.22",
-      "status": "wrong_math",
-      "derivation": "BT-106 - BT-107 + BT-108",
-      "rule_id": "R-TOT-CHECK-001"
     },
     {
       "bt": "BT-115",

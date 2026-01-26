@@ -900,7 +900,7 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
     bt113 = _bt(invoice.totals, "BT-113")
 
     if bt106_val is not None and bt109 and not bt109.value:
-        total_without_vat = round(bt106_val - (bt107_val or 0.0) + (bt108_val or 0.0), 2)
+        total_without_vat = round(bt106_val + (bt108_val or 0.0), 2)
         patches.append(
             _make_patch(
                 "totals",
@@ -908,7 +908,7 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
                 f"{total_without_vat:.2f}",
                 status="derived",
                 source="derived",
-                derivation="BT-106 - BT-107 + BT-108",
+                derivation="BT-106 + BT-108",
                 rule_id="R-TOT-GRAND-001",
             )
         )
@@ -1055,7 +1055,7 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
                 )
 
     if bt106_val is not None:
-        computed = round(bt106_val - (bt107_val or 0.0) + (bt108_val or 0.0), 2)
+        computed = round(bt106_val + (bt108_val or 0.0), 2)
         if bt109_val is not None and abs(bt109_val - computed) > TOLERANCE and bt109:
             patches.append(
                 _make_patch(
@@ -1064,7 +1064,7 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
                     f"{computed:.2f}",
                     status="wrong_math",
                     source="rule",
-                    derivation="BT-106 - BT-107 + BT-108",
+                    derivation="BT-106 + BT-108",
                     rule_id="R-TOT-CHECK-001",
                 )
             )
