@@ -478,6 +478,67 @@ def phase1_normalize(invoice: CanonicalInvoice) -> List[Patch]:
                 )
             )
 
+    amount_bts = {
+        "BT-92",
+        "BT-93",
+        "BT-94",
+        "BT-99",
+        "BT-100",
+        "BT-103",
+        "BT-106",
+        "BT-107",
+        "BT-108",
+        "BT-109",
+        "BT-110",
+        "BT-112",
+        "BT-113",
+        "BT-115",
+        "BT-116",
+    }
+    line_amount_bts = {"BT-131", "BT-146", "BT-147", "BT-148", "BT-149"}
+
+    for bt in amount_bts:
+        record = invoice.totals.get(bt)
+        if record and isinstance(record.value, str):
+            numeric = parse_decimal(record.value)
+            if numeric is not None:
+                normalized = f"{numeric:.2f}"
+                if normalized != record.value:
+                    patches.append(
+                        _make_patch(
+                            "totals",
+                            bt,
+                            normalized,
+                            status="corrected",
+                            source="rule",
+                            derivation="Normalized amount format",
+                            rule_id="R-TOT-AMOUNT-NORM-001",
+                            evidence=record.evidence,
+                        )
+                    )
+
+    for line in invoice.lines:
+        for bt in line_amount_bts:
+            record = line.bt.get(bt)
+            if record and isinstance(record.value, str):
+                numeric = parse_decimal(record.value)
+                if numeric is not None:
+                    normalized = f"{numeric:.2f}"
+                    if normalized != record.value:
+                        patches.append(
+                            _make_patch(
+                                "line",
+                                bt,
+                                normalized,
+                                line_id=line.line_id,
+                                status="corrected",
+                                source="rule",
+                                derivation="Normalized amount format",
+                                rule_id="R-LINE-AMOUNT-NORM-001",
+                                evidence=record.evidence,
+                            )
+                        )
+
     return patches
 
 
@@ -624,9 +685,65 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
                         source="derived",
                         derivation="Derived country subdivision from German delivery post code",
                         rule_id="R-HDR-SUBDIV-DELIVERY-POST-001",
-                        evidence=bt78.evidence,
+                    evidence=bt78.evidence,
+                )
+            )
+
+    # Skonto in payment terms when immediate payment (BT-81)
+    bt20 = _bt(invoice.header, "BT-20")
+    bt81 = _bt(invoice.header, "BT-81")
+    bt92 = _bt(invoice.totals, "BT-92")
+    bt94 = _bt(invoice.totals, "BT-94")
+    if bt20 and bt20.value and bt81 and bt81.value:
+        instant_tokens = {"vorkasse", "credit card", "kreditkarte", "paypal", "ebay", "klarna", "kaufland", "amazon", "online"}
+        if any(token in str(bt81.value).lower() for token in instant_tokens):
+            import re
+
+            terms_text = str(bt20.value).replace(",", ".")
+            percent_match = re.search(r"(\d+(?:\.\d+)?)\s*%\s*skonto", terms_text, re.IGNORECASE)
+            amount_match = re.search(r"\(([-\d\.]+)\s*(?:eur|€)?\)", terms_text, re.IGNORECASE)
+            skonto_percent = parse_decimal(percent_match.group(1)) if percent_match else None
+            skonto_amount = parse_decimal(amount_match.group(1)) if amount_match else None
+            if skonto_percent is not None and bt94 and not bt94.value:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-94",
+                        f"{skonto_percent:.2f}",
+                        status="derived",
+                        source="derived",
+                        derivation="Skonto percentage from payment terms",
+                        rule_id="R-PAY-SKONTO-007",
+                        evidence=bt20.evidence,
                     )
                 )
+            if skonto_amount is not None and bt92 and not bt92.value:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-92",
+                        f"{skonto_amount:.2f}",
+                        status="derived",
+                        source="derived",
+                        derivation="Skonto amount from payment terms",
+                        rule_id="R-PAY-SKONTO-008",
+                        evidence=bt20.evidence,
+                    )
+                )
+                bt107 = _bt(invoice.totals, "BT-107")
+                if bt107 and not bt107.value:
+                    patches.append(
+                        _make_patch(
+                            "totals",
+                            "BT-107",
+                            f"{skonto_amount:.2f}",
+                            status="derived",
+                            source="derived",
+                            derivation="Sum of document-level allowances",
+                            rule_id="R-TOT-ALLOW-001",
+                            evidence=bt20.evidence,
+                        )
+                    )
 
     # VAT category from VAT rate
     for line in invoice.lines:
@@ -649,12 +766,46 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
                 )
             )
 
+    # Derive BT-131 when missing: BT-146 * BT-129 * (1 - BT-138%)
+    for line in invoice.lines:
+        bt131 = line.bt.get("BT-131")
+        if not bt131 or bt131.value:
+            continue
+        qty = parse_decimal(line.bt.get("BT-129").value) if line.bt.get("BT-129") else None
+        unit_price = parse_decimal(line.bt.get("BT-146").value) if line.bt.get("BT-146") else None
+        discount_pct = parse_decimal(line.bt.get("BT-138").value) if line.bt.get("BT-138") else None
+        if qty is None or unit_price is None:
+            continue
+        line_total = unit_price * qty
+        if discount_pct is not None:
+            line_total = line_total * (1 - (discount_pct / 100))
+        line_total = round(line_total, 2)
+        patches.append(
+            _make_patch(
+                "line",
+                "BT-131",
+                f"{line_total:.2f}",
+                line_id=line.line_id,
+                status="derived",
+                source="derived",
+                derivation="BT-146 * BT-129 * (1 - BT-138%)",
+                rule_id="R-LINE-NET-001",
+            )
+        )
+
     # BT-106 sum of line net amounts
     line_net_values = []
     for line in invoice.lines:
         value = parse_decimal(line.bt.get("BT-131").value) if line.bt.get("BT-131") else None
-        if value is not None:
-            line_net_values.append(value)
+        if value is None:
+            continue
+        net_value = value
+        # If BT-131 likely pre-discount and line allowance exists, subtract it.
+        has_discount_pct = parse_decimal(line.bt.get("BT-138").value) if line.bt.get("BT-138") else None
+        allowance = parse_decimal(line.bt.get("BT-147").value) if line.bt.get("BT-147") else None
+        if has_discount_pct is None and allowance is not None:
+            net_value = net_value - allowance
+        line_net_values.append(net_value)
     if line_net_values:
         total = round(sum(line_net_values), 2)
         bt106 = _bt(invoice.totals, "BT-106")
@@ -666,7 +817,7 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
                     f"{total:.2f}",
                     status="derived",
                     source="derived",
-                    derivation="Sum of line net amounts",
+                    derivation="Sum of line net amounts (line allowances applied)",
                     rule_id="R-TOT-SUMS-001",
                 )
             )
@@ -796,7 +947,7 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
         )
 
     if bt112_val is not None and bt113_val is not None and bt115 and not bt115.value:
-        due = round(bt112_val - bt113_val, 2)
+        due = round(bt112_val - bt113_val - (bt107_val or 0.0), 2)
         patches.append(
             _make_patch(
                 "totals",
@@ -804,10 +955,58 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
                 f"{due:.2f}",
                 status="derived",
                 source="derived",
-                derivation="BT-112 - BT-113",
+                derivation="BT-112 - BT-113 - BT-107",
                 rule_id="R-TOT-GRAND-005",
             )
         )
+
+    if bt109_val is not None and bt110 and not bt110.value:
+        vat_rate_values = []
+        for line in invoice.lines:
+            rate = parse_decimal(line.bt.get("BT-152").value) if line.bt.get("BT-152") else None
+            if rate is not None:
+                vat_rate_values.append(rate)
+        if vat_rate_values:
+            rate_set = {round(r, 2) for r in vat_rate_values}
+            if len(rate_set) == 1:
+                rate = next(iter(rate_set))
+                vat_total = round(bt109_val * (rate / 100), 2)
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-110",
+                        f"{vat_total:.2f}",
+                        status="derived",
+                        source="derived",
+                        derivation=f"BT-109 * {rate:.2f}%",
+                        rule_id="R-TOT-VAT-001",
+                    )
+                )
+
+    bt116 = _bt(invoice.totals, "BT-116")
+    taxable = None
+    if bt109_val is not None:
+        taxable = bt109_val
+    elif bt106_val is not None:
+        taxable = round(bt106_val - (bt107_val or 0.0) + (bt108_val or 0.0), 2)
+    if bt116 and not bt116.value and taxable is not None:
+        categories = {
+            line.bt.get("BT-151").value
+            for line in invoice.lines
+            if line.bt.get("BT-151") and line.bt.get("BT-151").value
+        }
+        if len(categories) <= 1:
+            patches.append(
+                _make_patch(
+                    "totals",
+                    "BT-116",
+                    f"{taxable:.2f}",
+                    status="derived",
+                    source="derived",
+                    derivation="Taxable amount from total without VAT (single VAT category)",
+                    rule_id="R-TOT-TAXABLE-001",
+                )
+            )
 
     return patches
 
@@ -820,6 +1019,7 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
     bt106_val = parse_decimal(_bt(invoice.totals, "BT-106").value) if _bt(invoice.totals, "BT-106") else None
     bt107_val = parse_decimal(_bt(invoice.totals, "BT-107").value) if _bt(invoice.totals, "BT-107") else 0.0
     bt108_val = parse_decimal(_bt(invoice.totals, "BT-108").value) if _bt(invoice.totals, "BT-108") else 0.0
+    bt116_val = parse_decimal(_bt(invoice.totals, "BT-116").value) if _bt(invoice.totals, "BT-116") else None
     bt109 = _bt(invoice.totals, "BT-109")
     bt110 = _bt(invoice.totals, "BT-110")
     bt112 = _bt(invoice.totals, "BT-112")
@@ -830,6 +1030,29 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
     bt110_val = parse_decimal(bt110.value) if bt110 and bt110.value else None
     bt112_val = parse_decimal(bt112.value) if bt112 and bt112.value else None
     bt113_val = parse_decimal(bt113.value) if bt113 and bt113.value else None
+
+    # Sum of line net amounts vs BT-106
+    line_net_values = []
+    for line in invoice.lines:
+        value = parse_decimal(line.bt.get("BT-131").value) if line.bt.get("BT-131") else None
+        if value is not None:
+            line_net_values.append(value)
+    if line_net_values:
+        computed = round(sum(line_net_values), 2)
+        if bt106_val is not None and abs(bt106_val - computed) > TOLERANCE:
+            bt106 = _bt(invoice.totals, "BT-106")
+            if bt106:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-106",
+                        f"{computed:.2f}",
+                        status="wrong_math",
+                        source="rule",
+                        derivation="Sum of line net amounts (BT-131)",
+                        rule_id="R-TOT-CHECK-004",
+                    )
+                )
 
     if bt106_val is not None:
         computed = round(bt106_val - (bt107_val or 0.0) + (bt108_val or 0.0), 2)
@@ -862,7 +1085,7 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
             )
 
     if bt112_val is not None and bt113_val is not None:
-        computed = round(bt112_val - bt113_val, 2)
+        computed = round(bt112_val - bt113_val - (bt107_val or 0.0), 2)
         if bt115 and bt115.value and abs(parse_decimal(bt115.value) - computed) > TOLERANCE:
             patches.append(
                 _make_patch(
@@ -871,10 +1094,32 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
                     f"{computed:.2f}",
                     status="wrong_math",
                     source="rule",
-                    derivation="BT-112 - BT-113",
+                    derivation="BT-112 - BT-113 - BT-107",
                     rule_id="R-TOT-CHECK-003",
                 )
             )
+
+    # Taxable amount consistency when single VAT category
+    if bt116_val is not None and bt109_val is not None:
+        categories = {
+            line.bt.get("BT-151").value
+            for line in invoice.lines
+            if line.bt.get("BT-151") and line.bt.get("BT-151").value
+        }
+        if len(categories) <= 1 and abs(bt116_val - bt109_val) > TOLERANCE:
+            bt116 = _bt(invoice.totals, "BT-116")
+            if bt116:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-116",
+                        f"{bt109_val:.2f}",
+                        status="wrong_math",
+                        source="rule",
+                        derivation="Taxable amount equals total without VAT (single VAT category)",
+                        rule_id="R-TOT-CHECK-005",
+                    )
+                )
 
     return patches
 
@@ -952,23 +1197,41 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
             )
 
     # Document-level charges from text (BT-99)
-    charge_tokens = ["Versand", "Deklarierter Wert", "Handlingpauschale"]
+    import re
+
+    charge_patterns = [
+        re.compile(r"\bversandkosten\b", re.IGNORECASE),
+        re.compile(r"\bporto\b", re.IGNORECASE),
+        re.compile(r"\bshipping\b", re.IGNORECASE),
+        re.compile(r"\bdelivery charge\b", re.IGNORECASE),
+        re.compile(r"\bfreight\b", re.IGNORECASE),
+    ]
     charge_amounts = []
     evidence_snippets = []
-    for label in charge_tokens:
-        for idx, line in enumerate(lines_list):
-            if label.lower() in line.lower():
-                parts = line.split(":")
-                amount_text = parts[-1] if len(parts) > 1 else line.replace(label, "")
-                amount = parse_decimal(amount_text)
-                if amount is None and idx + 1 < len(lines_list):
-                    amount = parse_decimal(lines_list[idx + 1])
-                    if amount is not None:
-                        evidence_snippets.append(f"{line} {lines_list[idx + 1]}")
-                if amount is not None:
-                    charge_amounts.append(amount)
-                    if line not in evidence_snippets:
-                        evidence_snippets.append(line)
+    seen_lines = set()
+    for idx, line in enumerate(lines_list):
+        normalized_line = " ".join(line.lower().split())
+        if normalized_line in seen_lines:
+            continue
+        seen_lines.add(normalized_line)
+        if "versandart" in line.lower():
+            continue
+        if "%" in line:
+            continue
+        matched = any(pattern.search(line) for pattern in charge_patterns)
+        if not matched:
+            continue
+        parts = line.split(":")
+        amount_text = parts[-1] if len(parts) > 1 else line
+        amount = parse_decimal(amount_text)
+        if amount is None and idx + 1 < len(lines_list):
+            amount = parse_decimal(lines_list[idx + 1])
+            if amount is not None:
+                evidence_snippets.append(f"{line} {lines_list[idx + 1]}")
+        if amount is not None:
+            charge_amounts.append(amount)
+            if line not in evidence_snippets:
+                evidence_snippets.append(line)
     if charge_amounts:
         total_charges = round(sum(charge_amounts), 2)
         patches.append(
@@ -1077,11 +1340,13 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
     bt97 = _bt(invoice.totals, "BT-97")
     bt98 = _bt(invoice.totals, "BT-98")
     bt107 = _bt(invoice.totals, "BT-107")
-    instant_tokens = {"vorkasse", "credit card", "kreditkarte", "paypal", "ebay"}
+    instant_tokens = {"vorkasse", "credit card", "kreditkarte", "paypal", "ebay", "klarna", "kaufland", "amazon", "online"}
     content_lower = content.lower()
     instant_payment = False
     if bt81 and bt81.value:
         instant_payment = any(token in str(bt81.value).lower() for token in instant_tokens)
+    if not instant_payment and bt20 and bt20.value:
+        instant_payment = any(token in str(bt20.value).lower() for token in instant_tokens)
     if not instant_payment and any(token in content_lower for token in instant_tokens):
         instant_payment = True
         if bt81 and not bt81.value:
@@ -1224,6 +1489,17 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
 
         # If payment terms include Skonto percentage, derive BT-94 and BT-92
         skonto_percent = None
+        skonto_amount = None
+        if bt20 and bt20.value:
+            import re
+
+            terms_text = str(bt20.value).replace(",", ".")
+            percent_match = re.search(r"(\\d+(?:\\.\\d+)?)\\s*%\\s*skonto", terms_text, re.IGNORECASE)
+            amount_match = re.search(r"\\(([-\\d\\.]+)\\s*(?:eur|€)?\\)", terms_text, re.IGNORECASE)
+            if percent_match:
+                skonto_percent = parse_decimal(percent_match.group(1))
+            if amount_match:
+                skonto_amount = parse_decimal(amount_match.group(1))
         for line in lines_list:
             if "skonto" in line.lower():
                 normalized = line.replace(",", ".")
@@ -1238,9 +1514,13 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
         allowance = None
         if total_with_vat is not None and amount_after_skonto is not None:
             allowance = round(total_with_vat - amount_after_skonto, 2)
+            if allowance < 0 or allowance > total_with_vat:
+                allowance = None
         if allowance is not None and total_with_vat:
             if skonto_percent is None:
                 skonto_percent = round((allowance / total_with_vat) * 100, 2)
+        if allowance is None and skonto_amount is not None:
+            allowance = skonto_amount
 
         if skonto_percent is not None:
             if bt94 and not bt94.value:
@@ -1255,10 +1535,11 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
                         rule_id="R-PAY-SKONTO-001",
                     )
                 )
-        if bt92 and not bt92.value and total_with_vat is not None:
+        if bt92 and total_with_vat is not None:
+            existing_allowance = parse_decimal(bt92.value) if bt92 and bt92.value else None
             if allowance is None and skonto_percent is not None:
                 allowance = round(total_with_vat * (skonto_percent / 100), 2)
-            if allowance is not None:
+            if allowance is not None and (existing_allowance is None or existing_allowance == 0):
                 patches.append(
                     _make_patch(
                         "totals",
@@ -1322,15 +1603,15 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
             )
 
         # Paid amount equals total with VAT minus allowance (if any), or explicit amount after Skonto
-        if bt113 and not bt113.value and total_with_vat is not None:
+        if bt113 and (not bt113.value or bt113.status in {"derived", "wrong_math"}) and total_with_vat is not None:
             if amount_after_skonto is not None:
                 paid = round(amount_after_skonto, 2)
                 derivation = "Extracted amount after Skonto from totals block"
                 rule_id = "R-HDR-PAID-004"
             else:
-                allowance_val = parse_decimal(bt92.value) if bt92 and bt92.value else 0.0
+                allowance_val = parse_decimal(bt107.value) if bt107 and bt107.value else 0.0
                 paid = round(total_with_vat - allowance_val, 2)
-                derivation = "Instant payment: BT-112 - BT-92"
+                derivation = "Instant payment: BT-112 - BT-107"
                 rule_id = "R-HDR-PAID-002"
             patches.append(
                 _make_patch(
@@ -1343,7 +1624,7 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
                     rule_id=rule_id,
                 )
             )
-        if bt115 and not bt115.value and total_with_vat is not None:
+        if bt115 and (not bt115.value or bt115.status in {"derived", "wrong_math"}) and total_with_vat is not None:
             allowance_val = parse_decimal(bt107.value) if bt107 and bt107.value else 0.0
             if bt113 and bt113.value:
                 computed_due = round(total_with_vat - parse_decimal(bt113.value) - allowance_val, 2)
@@ -1386,15 +1667,24 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
 
     # Net/gross ambiguity resolution (line amounts)
     total_without_vat = parse_decimal(_bt(invoice.totals, "BT-109").value) if _bt(invoice.totals, "BT-109") else None
+    doc_allowances = parse_decimal(_bt(invoice.totals, "BT-107").value) if _bt(invoice.totals, "BT-107") else 0.0
+    doc_charges = parse_decimal(_bt(invoice.totals, "BT-108").value) if _bt(invoice.totals, "BT-108") else 0.0
     line_amounts = []
+    line_allowances = 0.0
     for line in invoice.lines:
         amount = parse_decimal(line.bt.get("BT-131").value) if line.bt.get("BT-131") else None
         if amount is not None:
             line_amounts.append(amount)
+        allowance = parse_decimal(line.bt.get("BT-147").value) if line.bt.get("BT-147") else None
+        if allowance is not None:
+            line_allowances += allowance
     sum_line_amounts = sum(line_amounts) if line_amounts else None
     treat_gross = False
-    if total_without_vat is not None and sum_line_amounts is not None:
-        if sum_line_amounts > total_without_vat * 1.001:
+    if (doc_allowances or doc_charges or line_allowances):
+        treat_gross = False
+    elif total_without_vat is not None and sum_line_amounts is not None:
+        expected_sum = total_without_vat + (doc_allowances or 0.0) + (line_allowances or 0.0) - (doc_charges or 0.0)
+        if sum_line_amounts > expected_sum * 1.001:
             treat_gross = True
 
     for line in invoice.lines:
@@ -1471,4 +1761,7 @@ def run_all_phases(invoice: CanonicalInvoice) -> List[Patch]:
     patches.extend(phase2_derive(invoice))
     patches.extend(phase3_validate(invoice))
     patches.extend(phase4_resolve(invoice))
+    # Re-run derivations that depend on Phase 4 signals (e.g., BT-81)
+    patches.extend(phase2_derive(invoice))
+    patches.extend(phase3_validate(invoice))
     return patches

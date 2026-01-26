@@ -20,8 +20,15 @@ def parse_decimal(value: object) -> Optional[float]:
         return None
     text = DECIMAL_RE.sub("", text)
     if "," in text and "." in text:
-        # assume comma is thousands separator; remove commas
-        text = text.replace(",", "")
+        # Decide decimal separator by last occurrence.
+        last_comma = text.rfind(",")
+        last_dot = text.rfind(".")
+        if last_comma > last_dot:
+            # European format: 1.234,56 -> 1234.56
+            text = text.replace(".", "").replace(",", ".")
+        else:
+            # US format: 1,234.56 -> 1234.56
+            text = text.replace(",", "")
     elif "," in text:
         text = text.replace(",", ".")
     try:

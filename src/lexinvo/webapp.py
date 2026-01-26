@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 INPUT_PATH = PROJECT_ROOT / "input" / "azure_invoice.json"
+PDF_PATH = PROJECT_ROOT / "input" / "invoice.pdf"
 OUTPUT_DIR = PROJECT_ROOT / "output"
 CONFIG_DIR = PROJECT_ROOT / "config"
 DATA_DIR = PROJECT_ROOT / "data"
@@ -205,15 +206,24 @@ def index():
 @app.post("/run")
 def run():
     upload = request.files.get("azure_json")
+    json_path = None
     if upload and upload.filename:
         INPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         upload.save(INPUT_PATH)
+        json_path = str(INPUT_PATH)
+    pdf_upload = request.files.get("invoice_pdf")
+    pdf_path = None
+    if pdf_upload and pdf_upload.filename:
+        INPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        pdf_upload.save(PDF_PATH)
+        pdf_path = str(PDF_PATH)
 
     run_pipeline(
-        input_path=str(INPUT_PATH),
+        input_path=json_path,
         output_dir=str(OUTPUT_DIR),
         config_dir=str(CONFIG_DIR),
         data_dir=str(DATA_DIR),
+        pdf_path=pdf_path,
     )
 
     return redirect(url_for("success"))

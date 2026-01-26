@@ -4,8 +4,8 @@
       "bt": "BT-2",
       "scope": "header",
       "line_id": null,
-      "old_value": "2021-06-10",
-      "new_value": "2021-10-06",
+      "old_value": "2021-06-05",
+      "new_value": "2021-05-06",
       "status": "corrected",
       "derivation": "Normalized date to ISO",
       "rule_id": "R-HDR-DATE-001"
@@ -14,31 +14,101 @@
       "bt": "BT-31",
       "scope": "header",
       "line_id": null,
-      "old_value": "USt-ID-Nr.DE172155500",
-      "new_value": "DE172155500",
+      "old_value": "DE 180 550 489",
+      "new_value": "DE180550489",
       "status": "corrected",
       "derivation": "Normalized VAT ID",
       "rule_id": "R-HDR-VAT-001"
     },
     {
-      "bt": "BT-30",
-      "scope": "header",
+      "bt": "BT-115",
+      "scope": "totals",
       "line_id": null,
-      "old_value": "HRB 361292\nHRA 361076",
-      "new_value": "HRB 361292",
+      "old_value": "2.317,82",
+      "new_value": "2317.82",
       "status": "corrected",
-      "derivation": "Normalized registration identifier to single value",
-      "rule_id": "R-HDR-REG-001"
+      "derivation": "Normalized amount format",
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
     },
     {
-      "bt": "BT-32",
-      "scope": "header",
+      "bt": "BT-109",
+      "scope": "totals",
       "line_id": null,
-      "old_value": "Nr.89079/43487",
-      "new_value": "89079/43487",
+      "old_value": "(1.947,75",
+      "new_value": "1947.75",
       "status": "corrected",
-      "derivation": "Normalized tax registration identifier",
-      "rule_id": "R-HDR-TAXREG-001"
+      "derivation": "Normalized amount format",
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-112",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "2.317,82",
+      "new_value": "2317.82",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-116",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "(1.947,75",
+      "new_value": "1947.75",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-106",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "1.947,75",
+      "new_value": "1947.75",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-110",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "370,07",
+      "new_value": "370.07",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-TOT-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-146",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "3,71 EUR",
+      "new_value": "3.71",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-LINE-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-148",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "1.947,75",
+      "new_value": "1947.75",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-LINE-AMOUNT-NORM-001"
+    },
+    {
+      "bt": "BT-131",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "1.947,75",
+      "new_value": "1947.75",
+      "status": "corrected",
+      "derivation": "Normalized amount format",
+      "rule_id": "R-LINE-AMOUNT-NORM-001"
     },
     {
       "bt": "BT-55",
@@ -55,9 +125,9 @@
       "scope": "header",
       "line_id": null,
       "old_value": null,
-      "new_value": "22",
+      "new_value": "DE-SH",
       "status": "derived",
-      "derivation": "Derived country subdivision from buyer post code prefix",
+      "derivation": "Derived country subdivision from German buyer post code",
       "rule_id": "R-HDR-SUBDIV-BUYER-POST-001"
     },
     {
@@ -75,10 +145,30 @@
       "scope": "header",
       "line_id": null,
       "old_value": null,
-      "new_value": "22",
+      "new_value": "DE-SH",
       "status": "derived",
-      "derivation": "Derived country subdivision from seller post code prefix",
+      "derivation": "Derived country subdivision from German seller post code",
       "rule_id": "R-HDR-SUBDIV-SELLER-POST-001"
+    },
+    {
+      "bt": "BT-80",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "DE",
+      "status": "derived",
+      "derivation": "Derived country code from delivery post code",
+      "rule_id": "R-HDR-COUNTRY-DELIVERY-POST-001"
+    },
+    {
+      "bt": "BT-79",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "DE-SH",
+      "status": "derived",
+      "derivation": "Derived country subdivision from German delivery post code",
+      "rule_id": "R-HDR-SUBDIV-DELIVERY-POST-001"
     },
     {
       "bt": "BT-151",
@@ -91,54 +181,124 @@
       "rule_id": "R-LINE-VATCAT-001"
     },
     {
-      "bt": "BT-106",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": null,
-      "new_value": "587.22",
-      "status": "derived",
-      "derivation": "Sum of line net amounts",
-      "rule_id": "R-TOT-SUMS-001"
-    },
-    {
-      "bt": "BT-5",
+      "bt": "BT-81",
       "scope": "header",
       "line_id": null,
-      "old_value": "EUR\nEUR",
-      "new_value": "EUR",
-      "status": "corrected",
-      "derivation": "Removed duplicate currency token",
-      "rule_id": "R-HDR-CURRENCY-DEDUP-001"
-    },
-    {
-      "bt": "BT-110",
-      "scope": "totals",
-      "line_id": null,
       "old_value": null,
-      "new_value": "111.57",
+      "new_value": "Vorkasse",
       "status": "derived",
-      "derivation": "BT-112 - BT-109",
-      "rule_id": "R-TOT-GRAND-003"
-    },
-    {
-      "bt": "BT-40",
-      "scope": "header",
-      "line_id": null,
-      "old_value": "DE",
-      "new_value": "US",
-      "status": "corrected",
-      "derivation": "Derived from seller VAT prefix",
-      "rule_id": "R-HDR-COUNTRY-SELLER-001"
+      "derivation": "Detected payment means in full text",
+      "rule_id": "R-HDR-PAYMEANS-LOCAL-001"
     },
     {
       "bt": "BT-9",
       "scope": "header",
       "line_id": null,
-      "old_value": "20.10.2021\n05.11.2021",
-      "new_value": "2021-11-05",
+      "old_value": "06.05.2021",
+      "new_value": "2021-05-06",
       "status": "corrected",
       "derivation": "Selected latest payment due date",
       "rule_id": "R-HDR-DUEDATE-002"
+    },
+    {
+      "bt": "BT-93",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "2317.82",
+      "status": "derived",
+      "derivation": "Allowance base = total with VAT",
+      "rule_id": "R-PAY-SKONTO-003"
+    },
+    {
+      "bt": "BT-97",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "Skonto",
+      "status": "derived",
+      "derivation": "Detected Skonto in payment terms",
+      "rule_id": "R-PAY-SKONTO-004"
+    },
+    {
+      "bt": "BT-98",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "SKONTO",
+      "status": "derived",
+      "derivation": "Allowance reason code placeholder for Skonto",
+      "rule_id": "R-PAY-SKONTO-005"
+    },
+    {
+      "bt": "BT-113",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "2317.82",
+      "status": "derived",
+      "derivation": "Instant payment: BT-112 - BT-107",
+      "rule_id": "R-HDR-PAID-002"
+    },
+    {
+      "bt": "BT-94",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "3.00",
+      "status": "derived",
+      "derivation": "Skonto percentage from payment terms",
+      "rule_id": "R-PAY-SKONTO-007"
+    },
+    {
+      "bt": "BT-92",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "69.53",
+      "status": "derived",
+      "derivation": "Skonto amount from payment terms",
+      "rule_id": "R-PAY-SKONTO-008"
+    },
+    {
+      "bt": "BT-107",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "69.53",
+      "status": "derived",
+      "derivation": "Sum of document-level allowances",
+      "rule_id": "R-TOT-ALLOW-001"
+    },
+    {
+      "bt": "BT-113",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "2317.82",
+      "new_value": "2248.29",
+      "status": "derived",
+      "derivation": "Instant payment: BT-112 - BT-107",
+      "rule_id": "R-HDR-PAID-002"
+    },
+    {
+      "bt": "BT-109",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "1947.75",
+      "new_value": "1878.22",
+      "status": "wrong_math",
+      "derivation": "BT-106 - BT-107 + BT-108",
+      "rule_id": "R-TOT-CHECK-001"
+    },
+    {
+      "bt": "BT-115",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "2317.82",
+      "new_value": "0.00",
+      "status": "wrong_math",
+      "derivation": "BT-112 - BT-113 - BT-107",
+      "rule_id": "R-TOT-CHECK-003"
     }
   ]
 }

@@ -74,10 +74,11 @@
     <div class="wrap">
       <div class="panel">
         <div class="step">Step 1</div>
-        <h1>Upload Azure JSON</h1>
-        <p>Select your invoice extraction file and run the process.</p>
+        <h1>Upload JSON and/or PDF</h1>
+        <p>Upload the Azure JSON, the original PDF, or both.</p>
         <form class="upload" action="/run" method="post" enctype="multipart/form-data">
-          <input type="file" name="azure_json" accept="application/json" required />
+          <input type="file" name="azure_json" accept="application/json" />
+          <input type="file" name="invoice_pdf" accept="application/pdf" />
           <button class="btn" type="submit">Run Process</button>
           <div class="hint">Your file stays local. Outputs are saved in the output folder.</div>
         </form>

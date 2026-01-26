@@ -8,8 +8,9 @@ from typing import Any, Dict
 
 from lexinvo.core.btstore import apply_patch, invoice_to_dict
 from lexinvo.core.loader import load_azure
+from lexinvo.core.pdf_audit import audit_and_enrich
 from lexinvo.core.report import build_report
-from lexinvo.core.rules_engine import run_all_phases
+from lexinvo.core.rules_engine import phase1_normalize, phase2_derive, phase3_validate, phase4_resolve
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -22,16 +23,32 @@ def _write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
 
 
-def run_pipeline(input_path: str, output_dir: str, config_dir: str, data_dir: str) -> None:
+def run_pipeline(input_path: str | None, output_dir: str, config_dir: str, data_dir: str, pdf_path: str | None = None) -> None:
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    input_data = _load_json(Path(input_path))
+    input_data = _load_json(Path(input_path)) if input_path else {}
     bt_registry = _load_json(Path(config_dir) / "bt_registry.json")
+
+    if pdf_path:
+        input_data, _ = audit_and_enrich(input_data, Path(pdf_path))
 
     invoice = load_azure(input_data, bt_registry)
 
-    for patch in run_all_phases(invoice):
+    for patch in phase1_normalize(invoice):
+        apply_patch(invoice, patch)
+    for patch in phase2_derive(invoice):
+        apply_patch(invoice, patch)
+    for patch in phase3_validate(invoice):
+        apply_patch(invoice, patch)
+    for patch in phase4_resolve(invoice):
+        apply_patch(invoice, patch)
+    # Re-run derivations/validations that depend on Phase 4 signals (e.g., BT-81)
+    for patch in phase2_derive(invoice):
+        apply_patch(invoice, patch)
+    for patch in phase4_resolve(invoice):
+        apply_patch(invoice, patch)
+    for patch in phase3_validate(invoice):
         apply_patch(invoice, patch)
 
     corrections_report = build_report(invoice)
