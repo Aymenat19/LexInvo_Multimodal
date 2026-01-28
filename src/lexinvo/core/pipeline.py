@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict
 
 from lexinvo.core.btstore import apply_patch, invoice_to_dict
+from lexinvo.core.gpt_enrich import enrich_with_gpt
 from lexinvo.core.loader import load_azure
 from lexinvo.core.pdf_audit import audit_and_enrich
 from lexinvo.core.report import build_report
@@ -34,6 +36,12 @@ def run_pipeline(input_path: str | None, output_dir: str, config_dir: str, data_
         input_data, _ = audit_and_enrich(input_data, Path(pdf_path))
 
     invoice = load_azure(input_data, bt_registry)
+
+    use_gpt = os.getenv("LEXINVO_USE_GPT", "").lower() in {"1", "true", "yes"}
+    if use_gpt:
+        model = os.getenv("LEXINVO_GPT_MODEL", "gpt-4o-mini")
+        for patch in enrich_with_gpt(input_data, pdf_path, model):
+            apply_patch(invoice, patch)
 
     for patch in phase1_normalize(invoice):
         apply_patch(invoice, patch)
