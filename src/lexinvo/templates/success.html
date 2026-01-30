@@ -119,8 +119,8 @@
                   <td><span class="pill">{{ row.bt }}</span></td>
                   <td>{{ row.name }}</td>
                   <td>{{ row.line_id }}</td>
-                  <td>{{ row.old }}</td>
-                  <td>{{ row.new }}</td>
+                  <td>{{ row.old|default("", true)|replace("\n", "<br>")|safe }}</td>
+                  <td>{{ row.new|default("", true)|replace("\n", "<br>")|safe }}</td>
                   <td>{{ row.status }}</td>
                 </tr>
               {% endfor %}

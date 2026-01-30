@@ -38,6 +38,8 @@ def run_pipeline(input_path: str | None, output_dir: str, config_dir: str, data_
     invoice = load_azure(input_data, bt_registry)
 
     use_gpt = os.getenv("LEXINVO_USE_GPT", "").lower() in {"1", "true", "yes"}
+    if pdf_path and os.getenv("LEXINVO_USE_GPT", "") == "":
+        use_gpt = True
     if use_gpt:
         model = os.getenv("LEXINVO_GPT_MODEL", "gpt-4o-mini")
         for patch in enrich_with_gpt(input_data, pdf_path, model):

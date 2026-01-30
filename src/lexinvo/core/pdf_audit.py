@@ -11,7 +11,7 @@ from pypdf import PdfReader
 from lexinvo.utils.normalize import parse_date_to_iso, parse_decimal
 
 INVOICE_NO_PATTERNS = [
-    r"(?:Rechnung|Rechnungsnummer|Invoice|Invoice No\.?|Invoice #|Rechnung Nr\.?)\s*[:#]?\s*([A-Za-z0-9/\\-]+)",
+    r"\b(?:Rechnungs-Nr\.?|Rechnungsnummer|Invoice No\.?|Invoice #|Rechnung Nr\.?)\b\s*[:#]?\s*([A-Za-z0-9/\\-]+)",
 ]
 
 DATE_LABELS = [
@@ -38,6 +38,7 @@ TOTAL_WITHOUT_VAT_LABELS = [
     "Zwischensumme",
     "Nettobetrag",
     "Gesamtsumme netto",
+    "Berechnungsgrundlage",
     "Total without VAT",
     "Subtotal",
 ]
@@ -97,6 +98,16 @@ def _find_field(fields: Dict[str, Any], bt: str) -> Tuple[Optional[Dict[str, Any
     return None, None
 
 
+def _looks_like_terms(text: str) -> bool:
+    if not text:
+        return False
+    # Require at least a date, a percentage, or a currency/amount.
+    has_date = bool(re.search(r"\b\d{2}\.\d{2}\.\d{4}\b|\b\d{4}-\d{2}-\d{2}\b", text))
+    has_percent = "%" in text
+    has_amount = bool(re.search(r"\d+[\\.,]\\d{2}", text)) or "EUR" in text or "€" in text
+    return has_date or has_percent or has_amount
+
+
 def _is_incorrect(field: Dict[str, Any], extracted: object, value_type: str, text: str) -> bool:
     existing = _get_field_value(field)
     if existing in (None, "", []) or extracted is None:
@@ -144,8 +155,22 @@ def _find_code_near_label(labels: list[str], lines: list[str], *, max_lookahead:
     return None
 
 
+def _find_due_date_from_text(lines: list[str]) -> Optional[str]:
+    for idx, line in enumerate(lines):
+        if "zahlbar bis" not in line.lower():
+            continue
+        for offset in range(0, 6):
+            if idx + offset >= len(lines):
+                break
+            candidate = lines[idx + offset]
+            match = re.search(r"\b\d{2}\.\d{2}\.\d{4}\b", candidate)
+            if match:
+                return match.group(0)
+    return None
+
+
 def _find_date_after(labels: list[str], lines: list[str]) -> Optional[str]:
-    for line in lines:
+    for idx, line in enumerate(lines):
         for label in labels:
             if label.lower() in line.lower():
                 date_match = re.search(r"\b\d{2}\.\d{2}\.\d{4}\b", line)
@@ -154,6 +179,16 @@ def _find_date_after(labels: list[str], lines: list[str]) -> Optional[str]:
                 date_match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", line)
                 if date_match:
                     return date_match.group(0)
+                for offset in range(1, 4):
+                    if idx + offset >= len(lines):
+                        break
+                    candidate = lines[idx + offset]
+                    date_match = re.search(r"\b\d{2}\.\d{2}\.\d{4}\b", candidate)
+                    if date_match:
+                        return date_match.group(0)
+                    date_match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", candidate)
+                    if date_match:
+                        return date_match.group(0)
     return None
 
 
@@ -282,12 +317,19 @@ def audit_and_enrich(input_data: Dict[str, Any], pdf_path: Path) -> Tuple[Dict[s
         ["Nummer", "Rechnungs-Nr", "Rechnungsnummer", "Invoice No", "Invoice #"], lines
     )
 
+    payment_terms = _extract_first([r"(Zahlbar.+)", r"(Payment terms.+)"], text)
+    if payment_terms and not _looks_like_terms(payment_terms):
+        payment_terms = None
+    due_from_text = _find_due_date_from_text(lines)
+    if payment_terms is None and due_from_text:
+        payment_terms = f"Zahlbar bis {due_from_text}"
+
     candidates = {
         "BT-1": ("string", invoice_no),
         "BT-2": ("date", _find_date_after(DATE_LABELS, lines)),
-        "BT-9": ("date", _find_date_after(DUE_DATE_LABELS, lines)),
+        "BT-9": ("date", due_from_text or _find_date_after(DUE_DATE_LABELS, lines)),
         "BT-5": ("string", _extract_currency(text)),
-        "BT-20": ("string", _extract_first([r"(Zahlbar.+)", r"(Payment terms.+)"], text)),
+        "BT-20": ("string", payment_terms),
         "BT-31": ("string", _extract_vat_id(text)),
         "BT-112": ("number", _find_amount_after(TOTAL_WITH_VAT_LABELS, lines)),
         "BT-109": ("number", _find_amount_after(TOTAL_WITHOUT_VAT_LABELS, lines, reject_words=["versand", "kostenlos", "ab"])),
@@ -298,6 +340,11 @@ def audit_and_enrich(input_data: Dict[str, Any], pdf_path: Path) -> Tuple[Dict[s
 
     for bt, (value_type, extracted) in candidates.items():
         field, _ = _find_field(fields, bt)
+        existing = _get_field_value(field) if field else None
+        # Avoid overwriting richer payment terms with a shorter snippet.
+        if bt == "BT-20" and existing and extracted:
+            if len(str(existing)) >= len(str(extracted)):
+                continue
         if _is_missing(field):
             _set_field(fields, bt, extracted, value_type=value_type, reason="missing")
         elif _is_incorrect(field, extracted, value_type, text):

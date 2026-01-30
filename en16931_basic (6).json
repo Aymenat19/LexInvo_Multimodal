@@ -1,0 +1,28 @@
+{
+  "profile": {
+    "specification_identifier": null,
+    "invoice_type_code": null
+  },
+  "header": {
+    "invoice_number": "sversand",
+    "issue_date": null,
+    "currency": "EUR",
+    "note_subject_code": null,
+    "payment_terms": null
+  },
+  "seller": {
+    "name": null,
+    "vat_id": "DE184382723"
+  },
+  "buyer": {
+    "name": null
+  },
+  "lines": [],
+  "totals": {
+    "sum_line_net": 55.12,
+    "total_without_vat": 55.12,
+    "vat_total": 10.95,
+    "total_with_vat": 66.07,
+    "amount_due": "-0.00"
+  }
+}

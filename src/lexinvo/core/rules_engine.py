@@ -234,6 +234,24 @@ def _bt(scope: Dict[str, BTValue], bt: str) -> Optional[BTValue]:
     return scope.get(bt)
 
 
+def _has_value(value: object) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"", "none", "null", "n/a", "na"}:
+            return False
+    return True
+
+
+def _clean_amount(value: Optional[float]) -> Optional[float]:
+    if value is None:
+        return None
+    if abs(value) < 0.005:
+        return 0.0
+    return value
+
+
 def _line(invoice: CanonicalInvoice, line_id: int) -> Optional[Dict[str, BTValue]]:
     for line in invoice.lines:
         if line.line_id == line_id:
@@ -461,6 +479,26 @@ def phase1_normalize(invoice: CanonicalInvoice) -> List[Patch]:
                 )
             )
 
+    # Normalize delivery date when multiple dates are present (pick latest)
+    bt72 = _bt(invoice.header, "BT-72")
+    if bt72 and bt72.value:
+        dates = _extract_dates_from_text(str(bt72.value))
+        if dates:
+            latest = max(dates)
+            if bt72.value != latest:
+                patches.append(
+                    _make_patch(
+                        "header",
+                        "BT-72",
+                        latest,
+                        status="corrected",
+                        source="rule",
+                        derivation="Selected latest delivery date",
+                        rule_id="R-HDR-DELIVDATE-001",
+                        evidence=bt72.evidence,
+                    )
+                )
+
     bt55 = _bt(invoice.header, "BT-55")
     if bt55 and bt55.value:
         normalized_country = normalize_country(bt55.value)
@@ -651,6 +689,27 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
                     derivation="Derived country subdivision from German tax representative post code",
                     rule_id="R-HDR-SUBDIV-TAXREP-POST-001",
                     evidence=bt67.evidence,
+                )
+            )
+
+    # Payment terms table parsing (multiple "Zahlbar bis" entries)
+    bt20 = _bt(invoice.header, "BT-20")
+    bt9 = _bt(invoice.header, "BT-9")
+    if bt20 and bt20.value:
+        text = str(bt20.value)
+        dates = _extract_dates_from_text(text)
+        if dates and bt9 and not bt9.value:
+            latest = max(dates)
+            patches.append(
+                _make_patch(
+                    "header",
+                    "BT-9",
+                    latest,
+                    status="derived",
+                    source="derived",
+                    derivation="Derived due date from payment terms table (latest date)",
+                    rule_id="R-HDR-DUEDATE-006",
+                    evidence=bt20.evidence,
                 )
             )
 
@@ -947,18 +1006,20 @@ def phase2_derive(invoice: CanonicalInvoice) -> List[Patch]:
         )
 
     if bt112_val is not None and bt113_val is not None and bt115 and not bt115.value:
-        due = round(bt112_val - bt113_val - (bt107_val or 0.0), 2)
-        patches.append(
-            _make_patch(
-                "totals",
-                "BT-115",
-                f"{due:.2f}",
-                status="derived",
-                source="derived",
-                derivation="BT-112 - BT-113 - BT-107",
-                rule_id="R-TOT-GRAND-005",
-            )
-        )
+        if bt112_val >= 0 and bt113_val >= 0 and bt113_val <= bt112_val + TOLERANCE:
+            due = _clean_amount(round(bt112_val - bt113_val - (bt107_val or 0.0), 2))
+            if due is not None and due >= 0:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-115",
+                        f"{due:.2f}",
+                        status="derived",
+                        source="derived",
+                        derivation="BT-112 - BT-113 - BT-107",
+                        rule_id="R-TOT-GRAND-005",
+                    )
+                )
 
     if bt109_val is not None and bt110 and not bt110.value:
         vat_rate_values = []
@@ -1020,6 +1081,8 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
     bt107_val = parse_decimal(_bt(invoice.totals, "BT-107").value) if _bt(invoice.totals, "BT-107") else 0.0
     bt108_val = parse_decimal(_bt(invoice.totals, "BT-108").value) if _bt(invoice.totals, "BT-108") else 0.0
     bt116_val = parse_decimal(_bt(invoice.totals, "BT-116").value) if _bt(invoice.totals, "BT-116") else None
+    bt92_val = parse_decimal(_bt(invoice.totals, "BT-92").value) if _bt(invoice.totals, "BT-92") else None
+    bt99_val = parse_decimal(_bt(invoice.totals, "BT-99").value) if _bt(invoice.totals, "BT-99") else None
     bt109 = _bt(invoice.totals, "BT-109")
     bt110 = _bt(invoice.totals, "BT-110")
     bt112 = _bt(invoice.totals, "BT-112")
@@ -1057,15 +1120,52 @@ def phase3_validate(invoice: CanonicalInvoice) -> List[Patch]:
     if bt106_val is not None:
         computed = round(bt106_val + (bt108_val or 0.0), 2)
         if bt109_val is not None and abs(bt109_val - computed) > TOLERANCE and bt109:
+            # If tax base (BT-116) matches BT-109, do not override BT-109.
+            if bt116_val is not None and abs(bt109_val - bt116_val) <= TOLERANCE:
+                pass
+            elif bt109.source in {"rule", "derived"} or bt109.status in {"derived", "wrong_math"}:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-109",
+                        f"{computed:.2f}",
+                        status="wrong_math",
+                        source="rule",
+                        derivation="BT-106 + BT-108",
+                        rule_id="R-TOT-CHECK-001",
+                    )
+                )
+            else:
+                # Keep authoritative BT-109 if provided by source/LLM
+                pass
+
+    if bt92_val is not None:
+        bt107 = _bt(invoice.totals, "BT-107")
+        if bt107 and bt107.value and abs(parse_decimal(bt107.value) - bt92_val) > TOLERANCE:
             patches.append(
                 _make_patch(
                     "totals",
-                    "BT-109",
-                    f"{computed:.2f}",
+                    "BT-107",
+                    f"{bt92_val:.2f}",
                     status="wrong_math",
                     source="rule",
-                    derivation="BT-106 + BT-108",
-                    rule_id="R-TOT-CHECK-001",
+                    derivation="BT-107 should equal BT-92",
+                    rule_id="R-TOT-CHECK-006",
+                )
+            )
+
+    if bt99_val is not None:
+        bt108 = _bt(invoice.totals, "BT-108")
+        if bt108 and bt108.value and abs(parse_decimal(bt108.value) - bt99_val) > TOLERANCE:
+            patches.append(
+                _make_patch(
+                    "totals",
+                    "BT-108",
+                    f"{bt99_val:.2f}",
+                    status="wrong_math",
+                    source="rule",
+                    derivation="BT-108 should equal BT-99",
+                    rule_id="R-TOT-CHECK-007",
                 )
             )
 
@@ -1200,8 +1300,10 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
     import re
 
     charge_patterns = [
+        re.compile(r"\bversand\b", re.IGNORECASE),
         re.compile(r"\bversandkosten\b", re.IGNORECASE),
         re.compile(r"\bporto\b", re.IGNORECASE),
+        re.compile(r"\bdeklarierter wert\b", re.IGNORECASE),
         re.compile(r"\bshipping\b", re.IGNORECASE),
         re.compile(r"\bdelivery charge\b", re.IGNORECASE),
         re.compile(r"\bfreight\b", re.IGNORECASE),
@@ -1535,8 +1637,9 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
                         rule_id="R-PAY-SKONTO-001",
                     )
                 )
+        bt92_value = parse_decimal(bt92.value) if bt92 and _has_value(bt92.value) else None
         if bt92 and total_with_vat is not None:
-            existing_allowance = parse_decimal(bt92.value) if bt92 and bt92.value else None
+            existing_allowance = bt92_value
             if allowance is None and skonto_percent is not None:
                 allowance = round(total_with_vat * (skonto_percent / 100), 2)
             if allowance is not None and (existing_allowance is None or existing_allowance == 0):
@@ -1551,7 +1654,7 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
                         rule_id="R-PAY-SKONTO-002",
                     )
                 )
-        if bt93 and not bt93.value and total_with_vat is not None:
+        if bt93 and not bt93.value and total_with_vat is not None and bt92_value is not None:
             patches.append(
                 _make_patch(
                     "totals",
@@ -1563,7 +1666,7 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
                     rule_id="R-PAY-SKONTO-003",
                 )
             )
-        if bt97 and not bt97.value:
+        if bt97 and not bt97.value and bt92_value is not None:
             patches.append(
                 _make_patch(
                     "totals",
@@ -1575,7 +1678,7 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
                     rule_id="R-PAY-SKONTO-004",
                 )
             )
-        if bt98 and not bt98.value:
+        if bt98 and not bt98.value and bt92_value is not None:
             patches.append(
                 _make_patch(
                     "totals",
@@ -1589,7 +1692,7 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
             )
 
         # Ensure sum of allowances (BT-107)
-        if bt107 and not bt107.value and bt92 and bt92.value:
+        if bt107 and not bt107.value and bt92_value is not None:
             patches.append(
                 _make_patch(
                     "totals",
@@ -1605,42 +1708,44 @@ def phase4_resolve(invoice: CanonicalInvoice) -> List[Patch]:
         # Paid amount equals total with VAT minus allowance (if any), or explicit amount after Skonto
         if bt113 and (not bt113.value or bt113.status in {"derived", "wrong_math"}) and total_with_vat is not None:
             if amount_after_skonto is not None:
-                paid = round(amount_after_skonto, 2)
+                paid = _clean_amount(round(amount_after_skonto, 2))
                 derivation = "Extracted amount after Skonto from totals block"
                 rule_id = "R-HDR-PAID-004"
             else:
-                allowance_val = parse_decimal(bt107.value) if bt107 and bt107.value else 0.0
-                paid = round(total_with_vat - allowance_val, 2)
+                allowance_val = parse_decimal(bt107.value) if bt107 and _has_value(bt107.value) else 0.0
+                paid = _clean_amount(round(total_with_vat - allowance_val, 2))
                 derivation = "Instant payment: BT-112 - BT-107"
                 rule_id = "R-HDR-PAID-002"
-            patches.append(
-                _make_patch(
-                    "totals",
-                    "BT-113",
-                    f"{paid:.2f}",
-                    status="derived",
-                    source="derived",
-                    derivation=derivation,
-                    rule_id=rule_id,
+            if paid is not None and paid >= 0:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-113",
+                        f"{paid:.2f}",
+                        status="derived",
+                        source="derived",
+                        derivation=derivation,
+                        rule_id=rule_id,
+                    )
                 )
-            )
         if bt115 and (not bt115.value or bt115.status in {"derived", "wrong_math"}) and total_with_vat is not None:
-            allowance_val = parse_decimal(bt107.value) if bt107 and bt107.value else 0.0
-            if bt113 and bt113.value:
-                computed_due = round(total_with_vat - parse_decimal(bt113.value) - allowance_val, 2)
+            allowance_val = parse_decimal(bt107.value) if bt107 and _has_value(bt107.value) else 0.0
+            if bt113 and _has_value(bt113.value):
+                computed_due = _clean_amount(round(total_with_vat - parse_decimal(bt113.value) - allowance_val, 2))
             else:
                 computed_due = 0.0
-            patches.append(
-                _make_patch(
-                    "totals",
-                    "BT-115",
-                    f"{computed_due:.2f}",
-                    status="derived",
-                    source="derived",
-                    derivation="BT-112 - BT-113 - BT-107",
-                    rule_id="R-HDR-PAID-003",
+            if computed_due is not None and computed_due >= 0:
+                patches.append(
+                    _make_patch(
+                        "totals",
+                        "BT-115",
+                        f"{computed_due:.2f}",
+                        status="derived",
+                        source="derived",
+                        derivation="BT-112 - BT-113 - BT-107",
+                        rule_id="R-HDR-PAID-003",
+                    )
                 )
-            )
 
     # If due date is in the future and no paid amount, amount due equals total with VAT
     if bt115 and not bt115.value and bt113 and not bt113.value and bt112 and bt112.value and bt9 and bt9.value:
