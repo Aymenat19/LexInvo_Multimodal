@@ -7,12 +7,13 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
-from lexinvo.core.btstore import apply_patch, invoice_to_dict
+from lexinvo.core.btstore import apply_patch, invoice_to_dict, empty_btvalue
 from lexinvo.core.gpt_enrich import enrich_with_gpt
 from lexinvo.core.loader import load_azure
 from lexinvo.core.pdf_audit import audit_and_enrich
 from lexinvo.core.report import build_report
 from lexinvo.core.rules_engine import phase1_normalize, phase2_derive, phase3_validate, phase4_resolve
+from lexinvo.core.models import CanonicalLine
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -32,7 +33,9 @@ def run_pipeline(input_path: str | None, output_dir: str, config_dir: str, data_
     input_data = _load_json(Path(input_path)) if input_path else {}
     bt_registry = _load_json(Path(config_dir) / "bt_registry.json")
 
-    if pdf_path:
+    llm_only = os.getenv("LEXINVO_LLM_ONLY", "").lower() in {"1", "true", "yes"}
+
+    if pdf_path and not llm_only:
         input_data, _ = audit_and_enrich(input_data, Path(pdf_path))
 
     invoice = load_azure(input_data, bt_registry)
@@ -42,24 +45,36 @@ def run_pipeline(input_path: str | None, output_dir: str, config_dir: str, data_
         use_gpt = True
     if use_gpt:
         model = os.getenv("LEXINVO_GPT_MODEL", "gpt-4o-mini")
-        for patch in enrich_with_gpt(input_data, pdf_path, model):
+        patches, llm_output = enrich_with_gpt(input_data, pdf_path, model)
+        if llm_only and llm_output.get("lines"):
+            line_bt_list = [bt for bt, spec in bt_registry.items() if spec.get("group") == "line"]
+            existing_ids = {line.line_id for line in invoice.lines}
+            for line in llm_output.get("lines", []):
+                line_id = line.get("line_id")
+                if line_id is None or line_id in existing_ids:
+                    continue
+                line_store = {bt: empty_btvalue(bt) for bt in line_bt_list}
+                invoice.lines.append(CanonicalLine(line_id=int(line_id), bt=line_store))
+                existing_ids.add(int(line_id))
+        for patch in patches:
             apply_patch(invoice, patch)
 
-    for patch in phase1_normalize(invoice):
-        apply_patch(invoice, patch)
-    for patch in phase2_derive(invoice):
-        apply_patch(invoice, patch)
-    for patch in phase3_validate(invoice):
-        apply_patch(invoice, patch)
-    for patch in phase4_resolve(invoice):
-        apply_patch(invoice, patch)
-    # Re-run derivations/validations that depend on Phase 4 signals (e.g., BT-81)
-    for patch in phase2_derive(invoice):
-        apply_patch(invoice, patch)
-    for patch in phase4_resolve(invoice):
-        apply_patch(invoice, patch)
-    for patch in phase3_validate(invoice):
-        apply_patch(invoice, patch)
+    if not llm_only:
+        for patch in phase1_normalize(invoice):
+            apply_patch(invoice, patch)
+        for patch in phase2_derive(invoice):
+            apply_patch(invoice, patch)
+        for patch in phase3_validate(invoice):
+            apply_patch(invoice, patch)
+        for patch in phase4_resolve(invoice):
+            apply_patch(invoice, patch)
+        # Re-run derivations/validations that depend on Phase 4 signals (e.g., BT-81)
+        for patch in phase2_derive(invoice):
+            apply_patch(invoice, patch)
+        for patch in phase4_resolve(invoice):
+            apply_patch(invoice, patch)
+        for patch in phase3_validate(invoice):
+            apply_patch(invoice, patch)
 
     corrections_report = build_report(invoice)
 

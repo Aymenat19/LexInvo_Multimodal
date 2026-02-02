@@ -55,6 +55,12 @@
         padding: 14px;
         background: #faf7f2;
       }
+      select {
+        border: 1px solid var(--border);
+        padding: 10px 12px;
+        background: #faf7f2;
+        font-size: 15px;
+      }
       .btn {
         display: inline-block;
         background: var(--accent);
@@ -79,6 +85,14 @@
         <form class="upload" action="/run" method="post" enctype="multipart/form-data">
           <input type="file" name="azure_json" accept="application/json" />
           <input type="file" name="invoice_pdf" accept="application/pdf" />
+          <div>
+            <label class="hint" for="gpt_model">Model</label>
+            <select id="gpt_model" name="gpt_model">
+              {% for model in model_choices %}
+                <option value="{{ model }}" {% if model == default_model %}selected{% endif %}>{{ model }}</option>
+              {% endfor %}
+            </select>
+          </div>
           <button class="btn" type="submit">Run Process</button>
           <div class="hint">Your file stays local. Outputs are saved in the output folder.</div>
         </form>

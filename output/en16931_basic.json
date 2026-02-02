@@ -1,18 +1,18 @@
 {
   "profile": {
-    "specification_identifier": null,
-    "invoice_type_code": "Rechnung"
+    "specification_identifier": "urn:cen.eu:en16931:2017",
+    "invoice_type_code": "380"
   },
   "header": {
-    "invoice_number": "5011477",
-    "issue_date": "2021-05-06",
+    "invoice_number": "GVR1679146",
+    "issue_date": "2020-12-03",
     "currency": "EUR",
     "note_subject_code": null,
-    "payment_terms": "Zahlbar bis zum 06.05.2021 mit 3 % Skonto (69,53 EUR)"
+    "payment_terms": "Vorkasse\nZahlung dankend erhalten!"
   },
   "seller": {
-    "name": "RALPH WEBER, Industrieberatung,",
-    "vat_id": "DE180550489"
+    "name": "notebooksbilliger.de AG",
+    "vat_id": "DE175671991"
   },
   "buyer": {
     "name": "PREBENA Steen + Klentze GmbH"
@@ -20,28 +20,64 @@
   "lines": [
     {
       "BT-126": "1",
-      "BT-129": "525,00",
-      "BT-130": "kg",
-      "BT-131": "1947.75",
+      "BT-129": "2",
+      "BT-130": "C62",
+      "BT-131": "779.98",
       "BT-138": null,
       "BT-144": null,
       "BT-145": null,
-      "BT-146": "3.71",
+      "BT-146": "389.99",
       "BT-147": null,
-      "BT-148": "1947.75",
-      "BT-149": null,
+      "BT-148": null,
+      "BT-149": "1",
       "BT-151": "S",
-      "BT-152": "19,0 %",
-      "BT-153": "Maschinenfolie 12 um Artikel: 10002024",
-      "BT-154": "500 mm x 2.970 m x 0,012 mm Rollengewicht 17,5 kg, Kerngewicht 1,0 kg",
-      "BT-157": null
+      "BT-152": "16",
+      "BT-153": "PC Acer Veriton N4660G i5-9400T, 8GB RAM, 256GB SSD, oOS",
+      "BT-154": "S/N: DTVRDEG072014027E13000, DTVRDEG072014027E43000",
+      "BT-157": "895509"
+    },
+    {
+      "BT-126": "2",
+      "BT-129": "1",
+      "BT-130": "C62",
+      "BT-131": "6.32",
+      "BT-138": null,
+      "BT-144": null,
+      "BT-145": null,
+      "BT-146": "6.32",
+      "BT-147": null,
+      "BT-148": null,
+      "BT-149": "1",
+      "BT-151": "S",
+      "BT-152": "16",
+      "BT-153": "KAB Sitecom USB-C zu USB-A Kabel 1m/2.0",
+      "BT-154": "S/N: 1008708181",
+      "BT-157": "882080"
+    },
+    {
+      "BT-126": "3",
+      "BT-129": "2",
+      "BT-130": "C62",
+      "BT-131": "11.68",
+      "BT-138": null,
+      "BT-144": null,
+      "BT-145": null,
+      "BT-146": "5.84",
+      "BT-147": null,
+      "BT-148": null,
+      "BT-149": "1",
+      "BT-151": "S",
+      "BT-152": "16",
+      "BT-153": "KAB Goobay 1,5m HDMI mit Ethernet Kabel",
+      "BT-154": "S/N: 1008738681, 1008738679",
+      "BT-157": "851359"
     }
   ],
   "totals": {
-    "sum_line_net": "1947.75",
-    "total_without_vat": "1947.75",
-    "vat_total": "370.07",
-    "total_with_vat": "2317.82",
-    "amount_due": "0.00"
+    "sum_line_net": "797.98",
+    "total_without_vat": "805.77",
+    "vat_total": "128.92",
+    "total_with_vat": "934.69",
+    "amount_due": "0"
   }
 }

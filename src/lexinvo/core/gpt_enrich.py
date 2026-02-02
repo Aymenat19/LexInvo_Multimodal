@@ -16,8 +16,8 @@ from lexinvo.core.models import Patch
 from lexinvo.core.pdf_audit import extract_pdf_text
 
 
-SYSTEM_PROMPT = """You are an invoice extraction assistant.
-Extract BT fields from the PDF and reconcile with the provided extracted JSON.
+SYSTEM_PROMPT = """You are an invoice extraction and correction assistant for EN16931 / ZUGFeRD / XRechnung.
+Your task is to reconcile a PDF invoice against an extracted JSON and output corrected BT fields.
 Return only JSON that matches the schema. Do not include explanations."""
 
 BT_LIST = [
@@ -130,12 +130,123 @@ BT_LIST = [
     "BT-10",
 ]
 
-USER_PROMPT = """Goal:
-- Compare extracted JSON vs the PDF.
-- Correct wrong values, fill missing values.
-- Prefer explicit values in the PDF (totals, dates, VAT, payment terms).
+USER_PROMPT = """Context:
+You are part of an invoice correction engine for EN16931 / ZUGFeRD / XRechnung.
+Pipeline: read the PDF (visual + text), compare against the extracted JSON, and return corrected BT fields.
+Only output fields you can see or derive from the invoice and the given rules. Do not invent data.
+If the invoice has line items, always return them in the `lines` array with line_id starting at 1.
+If no line items are visible, return an empty `lines` array.
 
-Rules (basic subset):
+BT field details (subset):
+- BT-1 Invoice number
+- BT-2 Invoice issue date
+- BT-3 Invoice type code
+- BT-5 Invoice currency code
+- BT-9 Payment due date
+- BT-10 Buyer reference
+- BT-11 Project reference
+- BT-12 Contract reference
+- BT-13 Purchase order reference
+- BT-14 Seller order reference
+- BT-16 Despatch advice reference
+- BT-20 Payment terms (full table/text)
+- BT-21 Invoice note subject code
+- BT-24 Specification identifier
+- BT-25 Preceding invoice reference
+- BT-27 Seller name
+- BT-28 Seller trading name
+- BT-29 Seller identifier
+- BT-30 Seller legal registration identifier
+- BT-31 Seller VAT identifier
+- BT-32 Seller tax registration identifier
+- BT-34 Seller electronic address
+- BT-35 Seller address line 1
+- BT-36 Seller address line 2
+- BT-37 Seller city
+- BT-38 Seller post code
+- BT-39 Seller country subdivision
+- BT-40 Seller country code
+- BT-44 Buyer name
+- BT-46 Buyer identifier
+- BT-47 Buyer legal registration identifier
+- BT-48 Buyer VAT identifier
+- BT-49 Buyer electronic address
+- BT-50 Buyer address line 1
+- BT-51 Buyer address line 2
+- BT-52 Buyer city
+- BT-53 Buyer post code
+- BT-54 Buyer country subdivision
+- BT-55 Buyer country code
+- BT-59 Payee name
+- BT-60 Payee identifier
+- BT-61 Payee legal registration identifier (scheme)
+- BT-62 Buyer tax representative name
+- BT-63 Seller tax representative VAT identifier
+- BT-64 Tax representative address line 1
+- BT-65 Tax representative address line 2
+- BT-66 Tax representative city
+- BT-67 Tax representative post code
+- BT-68 Tax representative country subdivision
+- BT-69 Tax representative country code
+- BT-70 Deliver-to party name
+- BT-71 Deliver-to location identifier
+- BT-72 Actual delivery date
+- BT-73 Invoicing period start date
+- BT-74 Invoicing period end date
+- BT-75 Deliver-to address line 1
+- BT-76 Deliver-to address line 2
+- BT-77 Deliver-to city
+- BT-78 Deliver-to post code
+- BT-79 Deliver-to country subdivision
+- BT-80 Deliver-to country code
+- BT-81 Payment means type code
+- BT-82 Specified trade settlement payment means
+- BT-83 Remittance information
+- BT-84 Payment account identifier
+- BT-86 Payment service provider identifier
+- BT-89 Mandate reference identifier
+- BT-92 Document-level allowance amount
+- BT-93 Document-level allowance base amount
+- BT-94 Document-level allowance percentage
+- BT-97 Document-level allowance reason
+- BT-98 Document-level allowance reason code
+- BT-99 Document-level charge amount
+- BT-100 Document-level charge base amount
+- BT-102 Document-level charge VAT category code
+- BT-103 Document-level charge VAT rate
+- BT-104 Document-level charge reason
+- BT-106 Sum of invoice line net amount
+- BT-107 Sum of allowances (document level)
+- BT-108 Sum of charges (document level)
+- BT-109 Invoice total amount without VAT
+- BT-110 Invoice total VAT amount
+- BT-112 Invoice total amount with VAT
+- BT-113 Paid amount
+- BT-115 Amount due for payment
+- BT-116 VAT category taxable amount
+- BT-126 Invoice line identifier
+- BT-128 Additional referenced document
+- BT-129 Invoiced quantity
+- BT-130 Invoiced quantity unit of measure
+- BT-131 Invoice line net amount
+- BT-138 Invoice line allowance percentage
+- BT-144 Invoice line charge reason
+- BT-145 Invoice line charge reason code
+- BT-146 Item net price
+- BT-147 Item price discount
+- BT-148 Item gross price
+- BT-149 Item price base quantity
+- BT-151 Invoiced item VAT category code
+- BT-152 Invoiced item VAT rate
+- BT-153 Item name
+- BT-154 Item description
+- BT-157 Item standard identifier
+- BT-162 Seller address line 3
+- BT-163 Buyer address line 3
+- BT-164 Tax representative address line 3
+- BT-165 Deliver-to address line 3
+
+Rules (subset logic, no tool logic):
 - Normalize dates to YYYY-MM-DD.
 - Normalize numbers to dot decimals (e.g., 1.947,75 -> 1947.75).
 - BT-106 = sum of line net amounts (BT-131).
@@ -311,14 +422,14 @@ def build_patches(llm_output: Dict[str, Any]) -> List[Patch]:
     return patches
 
 
-def enrich_with_gpt(input_data: Dict[str, Any], pdf_path: Optional[str], model: str) -> List[Patch]:
+def enrich_with_gpt(input_data: Dict[str, Any], pdf_path: Optional[str], model: str) -> tuple[List[Patch], Dict[str, Any]]:
     if not os.getenv("OPENAI_API_KEY"):
-        return []
+        return [], {}
     if not pdf_path:
         pdf_text = ""
     else:
         pdf_text = extract_pdf_text(Path(pdf_path))
     if not pdf_text and not input_data:
-        return []
+        return [], {}
     llm_output = _call_openai(model, pdf_text, input_data, pdf_path)
-    return build_patches(llm_output)
+    return build_patches(llm_output), llm_output

@@ -94,6 +94,18 @@
         .two-col { grid-template-columns: 1fr; }
       }
       .muted { color: var(--muted); }
+      .feedback-select {
+        min-width: 140px;
+        border: 1px solid var(--border);
+        padding: 6px 8px;
+        background: #faf7f2;
+        font-size: 14px;
+      }
+      .feedback-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
     </style>
   </head>
   <body>
@@ -101,32 +113,57 @@
       <div class="panel">
         <h2>All BT fields (full audit)</h2>
         <p class="muted">Every BT from the registry, showing raw vs final values.</p>
-        <div style="overflow-x: auto;">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>BT</th>
-                <th>Field</th>
-                <th>Line</th>
-                <th>Old value</th>
-                <th>Final value</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in all_rows %}
+        <form action="/feedback" method="post">
+          <div style="overflow-x: auto;">
+            <table class="table">
+              <thead>
                 <tr>
-                  <td><span class="pill">{{ row.bt }}</span></td>
-                  <td>{{ row.name }}</td>
-                  <td>{{ row.line_id }}</td>
-                  <td>{{ row.old|default("", true)|replace("\n", "<br>")|safe }}</td>
-                  <td>{{ row.new|default("", true)|replace("\n", "<br>")|safe }}</td>
-                  <td>{{ row.status }}</td>
+                  <th>BT</th>
+                  <th>Field</th>
+                  <th>Line</th>
+                  <th>Old value</th>
+                  <th>Final value</th>
+                  <th>Status</th>
+                  <th>Feedback</th>
+                  <th>Correct value</th>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {% for row in all_rows %}
+                  {% set feedback_key = row.bt ~ ":" ~ (row.line_id if row.line_id is not none else "header") %}
+                  <tr>
+                    <td><span class="pill">{{ row.bt }}</span></td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.line_id }}</td>
+                    <td>{{ row.old|default("", true)|replace("\n", "<br>")|safe }}</td>
+                    <td>{{ row.new|default("", true)|replace("\n", "<br>")|safe }}</td>
+                    <td>{{ row.status }}</td>
+                    <td>
+                      <select class="feedback-select" name="feedback__{{ feedback_key }}">
+                        {% set current = feedbacks.get(feedback_key, {}).get("status", "") %}
+                        <option value="" {% if current == "" %}selected{% endif %}>Unreviewed</option>
+                        <option value="incorrect" {% if current == "incorrect" %}selected{% endif %}>Incorrect</option>
+                      </select>
+                    </td>
+                    <td>
+                      {% set current_value = feedbacks.get(feedback_key, {}).get("correct_value", "") %}
+                      <input
+                        type="text"
+                        name="correct__{{ feedback_key }}"
+                        value="{{ current_value }}"
+                        class="feedback-select"
+                        placeholder="Enter correct value"
+                      />
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="feedback-actions">
+            <button class="btn" type="submit">Save feedback</button>
+          </div>
+        </form>
         <div style="margin-top: 18px;">
           <a class="btn" href="/download/en16931_basic">Extract compliant invoice</a>
         </div>
@@ -137,6 +174,9 @@
           <h2>Next run</h2>
           <p class="muted">Upload another file and re-run the process.</p>
           <a class="btn" href="/">Upload new file</a>
+          <form action="/rerun" method="post" style="margin-top: 12px;">
+            <button class="btn" type="submit">Re-run with feedback</button>
+          </form>
         </div>
         <div>
           <h2>Outputs folder</h2>

@@ -1,154 +1,294 @@
 {
   "entries": [
     {
+      "bt": "BT-1",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "GVR1679146",
+      "new_value": "GVR1679146",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
       "bt": "BT-2",
       "scope": "header",
       "line_id": null,
-      "old_value": "2021-06-05",
-      "new_value": "2021-05-06",
+      "old_value": "2020-03-12",
+      "new_value": "2020-12-03",
       "status": "corrected",
-      "derivation": "Normalized date to ISO",
-      "rule_id": "R-HDR-DATE-001"
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-3",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Rechnung",
+      "new_value": "380",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-5",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "EUR",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-10",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "5848676",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-13",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "B1597799",
+      "new_value": "B1597799",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-14",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "B1597799",
+      "new_value": "B1597799",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-20",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Vorkasse\nZahlung dankend erhalten!",
+      "new_value": "Vorkasse\nZahlung dankend erhalten!",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-24",
+      "scope": "header",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "urn:cen.eu:en16931:2017",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-27",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "notebooksbilliger.de AG",
+      "new_value": "notebooksbilliger.de AG",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-30",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "HRB 201279",
+      "new_value": "HRB 201279",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
       "bt": "BT-31",
       "scope": "header",
       "line_id": null,
-      "old_value": "DE 180 550 489",
-      "new_value": "DE180550489",
+      "old_value": "DE175 671 991",
+      "new_value": "DE175671991",
       "status": "corrected",
-      "derivation": "Normalized VAT ID",
-      "rule_id": "R-HDR-VAT-001"
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
-      "bt": "BT-72",
+      "bt": "BT-32",
       "scope": "header",
       "line_id": null,
-      "old_value": "14.05.2021",
-      "new_value": "2021-05-14",
+      "old_value": "68 295 6073",
+      "new_value": "682956073",
       "status": "corrected",
-      "derivation": "Selected latest delivery date",
-      "rule_id": "R-HDR-DELIVDATE-001"
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
-      "bt": "BT-106",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "1.947,75",
-      "new_value": "1947.75",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-TOT-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-110",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "370,07",
-      "new_value": "370.07",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-TOT-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-116",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "(1.947,75",
-      "new_value": "1947.75",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-TOT-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-115",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "2.317,82",
-      "new_value": "2317.82",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-TOT-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-109",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "(1.947,75",
-      "new_value": "1947.75",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-TOT-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-146",
-      "scope": "line",
-      "line_id": 1,
-      "old_value": "3,71 EUR",
-      "new_value": "3.71",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-LINE-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-131",
-      "scope": "line",
-      "line_id": 1,
-      "old_value": "1.947,75",
-      "new_value": "1947.75",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-LINE-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-148",
-      "scope": "line",
-      "line_id": 1,
-      "old_value": "1.947,75",
-      "new_value": "1947.75",
-      "status": "corrected",
-      "derivation": "Normalized amount format",
-      "rule_id": "R-LINE-AMOUNT-NORM-001"
-    },
-    {
-      "bt": "BT-55",
+      "bt": "BT-34",
       "scope": "header",
       "line_id": null,
-      "old_value": null,
-      "new_value": "DE",
-      "status": "derived",
-      "derivation": "Derived country code from buyer post code",
-      "rule_id": "R-HDR-COUNTRY-BUYER-POST-001"
+      "old_value": "business@notebooksbilliger.de",
+      "new_value": "business@notebooksbilliger.de",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
-      "bt": "BT-54",
+      "bt": "BT-35",
       "scope": "header",
       "line_id": null,
-      "old_value": null,
-      "new_value": "DE-SH",
-      "status": "derived",
-      "derivation": "Derived country subdivision from German buyer post code",
-      "rule_id": "R-HDR-SUBDIV-BUYER-POST-001"
+      "old_value": "Wiedemannstra\u00dfe 3",
+      "new_value": "Wiedemannstra\u00dfe 3",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-37",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Sarstedt",
+      "new_value": "Sarstedt",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-38",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "D-31157",
+      "new_value": "31157",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
       "bt": "BT-40",
       "scope": "header",
       "line_id": null,
-      "old_value": null,
+      "old_value": "\u00d6sterreichische",
       "new_value": "DE",
-      "status": "derived",
-      "derivation": "Derived country code from seller post code",
-      "rule_id": "R-HDR-COUNTRY-SELLER-POST-001"
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
-      "bt": "BT-39",
+      "bt": "BT-44",
       "scope": "header",
       "line_id": null,
-      "old_value": null,
-      "new_value": "DE-SH",
-      "status": "derived",
-      "derivation": "Derived country subdivision from German seller post code",
-      "rule_id": "R-HDR-SUBDIV-SELLER-POST-001"
+      "old_value": "PREBENA Steen + Klentze GmbH",
+      "new_value": "PREBENA Steen + Klentze GmbH",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-46",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "5848676",
+      "new_value": "5848676",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-50",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Ewige Weide 8",
+      "new_value": "Ewige Weide 8",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-52",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Ahrensburg",
+      "new_value": "Ahrensburg",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-53",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "22926",
+      "new_value": "22926",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-55",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Deutschland",
+      "new_value": "DE",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-70",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "PREBENA Steen + Klentze GmbH",
+      "new_value": "PREBENA Steen + Klentze GmbH",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-72",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "03.12.2020",
+      "new_value": "2020-12-03",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-75",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Ewige Weide 8",
+      "new_value": "Ewige Weide 8",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-77",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Ahrensburg",
+      "new_value": "Ahrensburg",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-78",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "22926",
+      "new_value": "22926",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
       "bt": "BT-80",
@@ -156,19 +296,279 @@
       "line_id": null,
       "old_value": null,
       "new_value": "DE",
-      "status": "derived",
-      "derivation": "Derived country code from delivery post code",
-      "rule_id": "R-HDR-COUNTRY-DELIVERY-POST-001"
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
     },
     {
-      "bt": "BT-79",
+      "bt": "BT-81",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "Vorkasse",
+      "new_value": "31",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-84",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "DE31 2507 0070 0636 3063 00",
+      "new_value": "DE31250700700636306300",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-86",
+      "scope": "header",
+      "line_id": null,
+      "old_value": "DEUTDE2HXXX",
+      "new_value": "DEUTDE2HXXX",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-83",
       "scope": "header",
       "line_id": null,
       "old_value": null,
-      "new_value": "DE-SH",
-      "status": "derived",
-      "derivation": "Derived country subdivision from German delivery post code",
-      "rule_id": "R-HDR-SUBDIV-DELIVERY-POST-001"
+      "new_value": "GVR1679146",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-HEADER-001"
+    },
+    {
+      "bt": "BT-92",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "0",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-93",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "0",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-94",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "0",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-99",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "5,98",
+      "new_value": "7.79",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-100",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "7.79",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-102",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "S",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-103",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "16",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-104",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "Versand:",
+      "new_value": "Versand",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-106",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "797,98",
+      "new_value": "797.98",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-107",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "0",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-108",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "797,98",
+      "new_value": "7.79",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-109",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "699,78",
+      "new_value": "805.77",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-110",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "111,97",
+      "new_value": "128.92",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-112",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "811,75",
+      "new_value": "934.69",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-113",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": null,
+      "new_value": "934.69",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-115",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "811,75",
+      "new_value": "0",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-116",
+      "scope": "totals",
+      "line_id": null,
+      "old_value": "699,78",
+      "new_value": "699.78",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-TOTALS-001"
+    },
+    {
+      "bt": "BT-126",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": null,
+      "new_value": "1",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-129",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "2",
+      "new_value": "2",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-130",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": null,
+      "new_value": "C62",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-131",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "779,98",
+      "new_value": "779.98",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-146",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "389,99",
+      "new_value": "389.99",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-149",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": null,
+      "new_value": "1",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
       "bt": "BT-151",
@@ -176,129 +576,269 @@
       "line_id": 1,
       "old_value": null,
       "new_value": "S",
-      "status": "derived",
-      "derivation": "Derived VAT category from rate",
-      "rule_id": "R-LINE-VATCAT-001"
-    },
-    {
-      "bt": "BT-112",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": 1525.0,
-      "new_value": "2317.82",
-      "status": "wrong_math",
-      "derivation": "BT-109 + BT-110",
-      "rule_id": "R-TOT-CHECK-002"
-    },
-    {
-      "bt": "BT-81",
-      "scope": "header",
-      "line_id": null,
-      "old_value": null,
-      "new_value": "Vorkasse",
-      "status": "derived",
-      "derivation": "Detected payment means in full text",
-      "rule_id": "R-HDR-PAYMEANS-LOCAL-001"
-    },
-    {
-      "bt": "BT-9",
-      "scope": "header",
-      "line_id": null,
-      "old_value": "06.05.2021",
-      "new_value": "2021-05-06",
       "status": "corrected",
-      "derivation": "Selected latest payment due date",
-      "rule_id": "R-HDR-DUEDATE-002"
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-113",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-152",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "16%",
+      "new_value": "16",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-153",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "PC Acer Veriton N4660G i5-9400T, 8GB RAM, 256GB SSD, oOS S/N: DTVRDEG072014027E13000, DTVRDEG072014027E43000",
+      "new_value": "PC Acer Veriton N4660G i5-9400T, 8GB RAM, 256GB SSD, oOS",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-154",
+      "scope": "line",
+      "line_id": 1,
       "old_value": null,
-      "new_value": "2317.82",
-      "status": "derived",
-      "derivation": "Instant payment: BT-112 - BT-107",
-      "rule_id": "R-HDR-PAID-002"
+      "new_value": "S/N: DTVRDEG072014027E13000, DTVRDEG072014027E43000",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-94",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-157",
+      "scope": "line",
+      "line_id": 1,
+      "old_value": "895509",
+      "new_value": "895509",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-126",
+      "scope": "line",
+      "line_id": 2,
       "old_value": null,
-      "new_value": "3.00",
-      "status": "derived",
-      "derivation": "Skonto percentage from payment terms",
-      "rule_id": "R-PAY-SKONTO-007"
+      "new_value": "2",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-92",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-129",
+      "scope": "line",
+      "line_id": 2,
+      "old_value": "1",
+      "new_value": "1",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-130",
+      "scope": "line",
+      "line_id": 2,
       "old_value": null,
-      "new_value": "69.53",
-      "status": "derived",
-      "derivation": "Skonto amount from payment terms",
-      "rule_id": "R-PAY-SKONTO-008"
+      "new_value": "C62",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-107",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-131",
+      "scope": "line",
+      "line_id": 2,
+      "old_value": "6,32",
+      "new_value": "6.32",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-146",
+      "scope": "line",
+      "line_id": 2,
+      "old_value": "6,32",
+      "new_value": "6.32",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-149",
+      "scope": "line",
+      "line_id": 2,
       "old_value": null,
-      "new_value": "69.53",
-      "status": "derived",
-      "derivation": "Sum of document-level allowances",
-      "rule_id": "R-TOT-ALLOW-001"
+      "new_value": "1",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-93",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-151",
+      "scope": "line",
+      "line_id": 2,
       "old_value": null,
-      "new_value": "2317.82",
-      "status": "derived",
-      "derivation": "Allowance base = total with VAT",
-      "rule_id": "R-PAY-SKONTO-003"
+      "new_value": "S",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-97",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-152",
+      "scope": "line",
+      "line_id": 2,
+      "old_value": "16%",
+      "new_value": "16",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-153",
+      "scope": "line",
+      "line_id": 2,
+      "old_value": "KAB Sitecom USB-C zu USB-A Kabel 1m/2.0 S/N: 1008708181",
+      "new_value": "KAB Sitecom USB-C zu USB-A Kabel 1m/2.0",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-154",
+      "scope": "line",
+      "line_id": 2,
       "old_value": null,
-      "new_value": "Skonto",
-      "status": "derived",
-      "derivation": "Detected Skonto in payment terms",
-      "rule_id": "R-PAY-SKONTO-004"
+      "new_value": "S/N: 1008708181",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-98",
-      "scope": "totals",
-      "line_id": null,
+      "bt": "BT-157",
+      "scope": "line",
+      "line_id": 2,
+      "old_value": "882080",
+      "new_value": "882080",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-126",
+      "scope": "line",
+      "line_id": 3,
       "old_value": null,
-      "new_value": "SKONTO",
-      "status": "derived",
-      "derivation": "Allowance reason code placeholder for Skonto",
-      "rule_id": "R-PAY-SKONTO-005"
+      "new_value": "3",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-113",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "2317.82",
-      "new_value": "2248.29",
-      "status": "derived",
-      "derivation": "Instant payment: BT-112 - BT-107",
-      "rule_id": "R-HDR-PAID-002"
+      "bt": "BT-129",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": "2",
+      "new_value": "2",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     },
     {
-      "bt": "BT-115",
-      "scope": "totals",
-      "line_id": null,
-      "old_value": "2317.82",
-      "new_value": "0.00",
-      "status": "wrong_math",
-      "derivation": "BT-112 - BT-113 - BT-107",
-      "rule_id": "R-TOT-CHECK-003"
+      "bt": "BT-130",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": null,
+      "new_value": "C62",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-131",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": "11,68",
+      "new_value": "11.68",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-146",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": "5,84",
+      "new_value": "5.84",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-149",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": null,
+      "new_value": "1",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-151",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": null,
+      "new_value": "S",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-152",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": "16%",
+      "new_value": "16",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-153",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": "KAB Goobay 1,5m HDMI mit Ethernet Kabel S/N: 1008738681, 1008738679",
+      "new_value": "KAB Goobay 1,5m HDMI mit Ethernet Kabel",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-154",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": null,
+      "new_value": "S/N: 1008738681, 1008738679",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
+    },
+    {
+      "bt": "BT-157",
+      "scope": "line",
+      "line_id": 3,
+      "old_value": "851359",
+      "new_value": "851359",
+      "status": "corrected",
+      "derivation": "LLM enrichment",
+      "rule_id": "R-LLM-LINE-001"
     }
   ]
 }
